@@ -1,5 +1,6 @@
 import '../models/book.dart';
 import 'package:flutter/material.dart';
+import '../services/book_service.dart';
 
 final ValueNotifier<int> quantity = ValueNotifier<int>(10); // global stock counter
 
@@ -101,15 +102,52 @@ class DetailsContent extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-            onPressed: () {
+            onPressed: () async {
               if (quantity.value > 0) {
+                // decrease stock
                 quantity.value--;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text("You purchased '${book.name}'. Remaining: ${quantity.value}"),
-                    duration: const Duration(seconds: 2),
-                  ),
-                );
+                // insert into local DB basket
+                try {
+                  await BookService().insertBook(book);
+                  // show a short success dialog that auto dismisses (rounded, themed)
+                  showDialog(
+                    context: context,
+                    barrierDismissible: true,
+                    builder: (dialogContext) {
+                      // auto close after a short delay
+                      Future.delayed(const Duration(milliseconds: 1600), () {
+                        if (Navigator.of(dialogContext).canPop()) Navigator.of(dialogContext).pop();
+                      });
+
+                      final cardColor = Theme.of(context).cardColor;
+                      final textColor = ThemeData.estimateBrightnessForColor(cardColor) == Brightness.dark
+                          ? Colors.white
+                          : Colors.black87;
+
+                      return Dialog(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        backgroundColor: cardColor,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 18.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Success', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: textColor)),
+                              const SizedBox(height: 8),
+                              Text('Book added successfully', style: TextStyle(fontSize: 14, color: textColor)),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                } catch (e) {
+                  showDialog(
+                    context: context,
+                    builder: (dialogContext) => AlertDialog(title: const Text('Error'), content: Text('DB error: $e')),
+                  );
+                }
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Out of stock!")));
               }
