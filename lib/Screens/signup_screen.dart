@@ -44,7 +44,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             // Image
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10.0),
-              child: Image.asset("assets/logo_INSAT.png", width: 250, height: 200),
+              child: Image.asset("assets/Logo_INSAT.png", width: 250, height: 200),
             ),
 
             // Username

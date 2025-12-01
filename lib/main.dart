@@ -3,6 +3,8 @@ import 'Screens/signup_screen.dart';
 import 'Screens/home_screen.dart';
 import 'Screens/bottom_nav_screen.dart';
 import 'Screens/tab_bar_screen.dart';
+import 'Screens/details_screen.dart';
+import 'models/book.dart';
 
 void main() {
   runApp(const MyApp());
@@ -35,6 +37,10 @@ class _MyAppState extends State<MyApp> {
           },
         ),
         HomeScreen.routeName: (context) => const HomeScreen(),
+        DetailsScreen.routeName: (context) {
+          final args = ModalRoute.of(context)!.settings.arguments as Book;
+          return DetailsScreen(book: args);
+        },
         BottomNavScreen.routeName: (context) => const BottomNavScreen(),
         MyTabBar.routeName: (context) => const MyTabBar(),
       },

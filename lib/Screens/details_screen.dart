@@ -4,6 +4,7 @@ import '../models/book.dart';
 int quantity = 10; // global stock counter
 
 class DetailsScreen extends StatefulWidget {
+  static const String routeName = "/Details";
   final Book book;
   const DetailsScreen({super.key, required this.book});
 

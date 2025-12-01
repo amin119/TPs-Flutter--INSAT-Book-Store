@@ -10,9 +10,10 @@ class LibraryCell extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
+        Navigator.pushNamed(
           context,
-          MaterialPageRoute(builder: (_) => DetailsScreen(book: book)),
+          DetailsScreen.routeName,
+          arguments: book,
         );
       },
       child: Card(
