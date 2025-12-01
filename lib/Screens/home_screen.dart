@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/home_cell.dart';
 import '../models/book.dart';
-// library_screen import removed (not used in HomeScreen AppBar anymore)
 import 'details_screen.dart';
 import '../theme_controller.dart';
 import '../widgets/custom_drawer.dart';
