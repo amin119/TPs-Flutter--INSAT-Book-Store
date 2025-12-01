@@ -45,8 +45,11 @@ class _HomeScreenState extends State<HomeScreen> {
             if (isWide) {
               setState(() => selectedBook = book);
             } else {
-              Navigator.pushNamed(context, DetailsScreen.routeName,
-                  arguments: book);
+              // Normal route (MaterialPageRoute) navigation to DetailsScreen
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => DetailsScreen(book: book)),
+              );
             }
           },
           child: HomeCell(book: book),
