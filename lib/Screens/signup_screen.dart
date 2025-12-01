@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import '../widgets/custom_input_decoration.dart';
-import 'home_screen.dart';
+import 'tab_bar_screen.dart';
+import '../theme_controller.dart';
 
 class SignUpScreen extends StatefulWidget {
   static const String routeName = "/"; // Set as initial route
 
-  final VoidCallback onThemeChange;
-  const SignUpScreen({super.key, required this.onThemeChange});
+  const SignUpScreen({super.key});
 
   @override
   State<SignUpScreen> createState() => _SignUpScreenState();
@@ -27,12 +27,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Sign Up"),
+        centerTitle: true,
+        title: const Text("Sign Up", style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: const Color.fromARGB(255, 33, 107, 235),
         actions: [
           IconButton(
             icon: const Icon(Icons.brightness_6_outlined),
-            onPressed: widget.onThemeChange, // Theme change button
+            onPressed: toggleTheme, // Theme change button
           ),
         ],
       ),
@@ -186,12 +187,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           TextButton(
                             onPressed: () {
                               Navigator.pop(context); // close dialog
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const HomeScreen(),
-                                ),
-                              );
+                              // Navigate to the tabbed top-bar (functional TabBar)
+                              Navigator.pushReplacementNamed(
+                                  context, MyTabBar.routeName);
                             },
                             child: const Text("OK"),
                           ),

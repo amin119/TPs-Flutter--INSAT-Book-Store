@@ -8,55 +8,59 @@ class HomeCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 5,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(15),
-        onTap: () {
-          Navigator.pushNamed(
-            context,
-            '/Details',
-            arguments: book,
-          );
-        },
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+      child: Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        color: Theme.of(context).cardColor,
         child: Container(
-          padding: const EdgeInsets.all(8),
+          height: 130,
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
+              // Thumbnail
               ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: Image.asset(
-                  book.image,
-                  width: 100,
-                  height: 120,
+                borderRadius: BorderRadius.circular(8),
+                  child: Image.asset(
+                    book.image,
+                    width: 80,
+                    height: 110,
                   fit: BoxFit.cover,
                 ),
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    book.name,
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+              const SizedBox(width: 16),
+
+                // Right-aligned title and price
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        book.name,
+                        textAlign: TextAlign.right,
+                        style: TextStyle(
+                          color: Theme.of(context).brightness == Brightness.dark ? Colors.black : Colors.black,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        "${book.price} TND",
+                        textAlign: TextAlign.right,
+                        style: TextStyle(
+                          color: Theme.of(context).brightness == Brightness.dark ? Colors.black87 : Colors.black87,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
-                  Text(
-                    "${book.price} DT",
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              )
+                ),
             ],
           ),
         ),
