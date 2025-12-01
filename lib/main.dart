@@ -36,7 +36,8 @@ class _MyAppState extends State<MyApp> {
           darkTheme: ThemeData(
             brightness: Brightness.dark,
             scaffoldBackgroundColor: const Color(0xFF121212),
-            cardColor: const Color(0xFFF7F3F8), // pale cards on dark background
+            // make cards truly dark in dark mode so the overall app looks fully dark
+            cardColor: const Color(0xFF1E1E1E),
             appBarTheme: const AppBarTheme(backgroundColor: Color(0xFF216BEF)),
             bottomNavigationBarTheme: const BottomNavigationBarThemeData(
               backgroundColor: Color(0xFF121212),

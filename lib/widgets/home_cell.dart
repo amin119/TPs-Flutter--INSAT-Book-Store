@@ -8,6 +8,10 @@ class HomeCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Determine a readable text color for content placed over the card color
+    final cardColor = Theme.of(context).cardColor;
+    final cardBrightness = ThemeData.estimateBrightnessForColor(cardColor);
+    final onCardTextColor = cardBrightness == Brightness.dark ? Colors.white : Colors.black87;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
       child: Card(
@@ -41,7 +45,7 @@ class HomeCell extends StatelessWidget {
                         book.name,
                         textAlign: TextAlign.right,
                         style: TextStyle(
-                          color: Theme.of(context).brightness == Brightness.dark ? Colors.black : Colors.black,
+                          color: onCardTextColor,
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
                         ),
@@ -53,7 +57,7 @@ class HomeCell extends StatelessWidget {
                         "${book.price} TND",
                         textAlign: TextAlign.right,
                         style: TextStyle(
-                          color: Theme.of(context).brightness == Brightness.dark ? Colors.black87 : Colors.black87,
+                          color: onCardTextColor,
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
                         ),

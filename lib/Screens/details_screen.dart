@@ -16,14 +16,16 @@ class _DetailsScreenState extends State<DetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      // Use theme's scaffold background so dark mode is respected
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 33, 107, 235),
+        // prefer the app's AppBarTheme color so the bar matches the rest of the app
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         centerTitle: true,
         title: Text(
           widget.book.name,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: Theme.of(context).appBarTheme.foregroundColor ?? Colors.white,
             fontWeight: FontWeight.bold,
             fontSize: 22,
           ),
@@ -54,7 +56,9 @@ class DetailsContent extends StatelessWidget {
             child: ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: Container(
-              color: Theme.of(context).cardColor,
+        // Use the theme card color so in dark mode the image frame becomes dark
+        // and in light mode it remains the pale framed look.
+        color: Theme.of(context).cardColor,
               width: MediaQuery.of(context).size.width * 0.9,
               height: MediaQuery.of(context).size.height * 0.45,
               alignment: Alignment.center,
@@ -63,18 +67,19 @@ class DetailsContent extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        const Text(
+        // description uses theme text color so it's visible in dark mode
+        Text(
           "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
               "Suspendisse lectus tortor, dignissim sit amet, ultricies sed, dolor. "
               "Cras elementum ultrices diam.",
           textAlign: TextAlign.justify,
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 15, fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 20),
         Center(
           child: Text(
             "${book.price} DT",
-            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 22, fontWeight: FontWeight.bold),
           ),
         ),
         const SizedBox(height: 8),
@@ -83,7 +88,7 @@ class DetailsContent extends StatelessWidget {
           builder: (context, value, _) => Center(
             child: Text(
               "Stock: $value",
-              style: const TextStyle(color: Colors.grey, fontSize: 16),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey, fontSize: 16),
             ),
           ),
         ),
@@ -91,8 +96,8 @@ class DetailsContent extends StatelessWidget {
         Center(
           child: ElevatedButton.icon(
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color.fromARGB(255, 33, 107, 235),
-              foregroundColor: Colors.white,
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
