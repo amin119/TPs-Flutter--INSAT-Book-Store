@@ -1,8 +1,9 @@
 
 import 'package:flutter/material.dart';
-import '../services/book_service.dart';
 import '../models/book.dart';
 import '../widgets/home_cell.dart';
+import '../services/cloud_book_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class BasketScreen extends StatelessWidget {
   final bool showAppBar;
@@ -11,8 +12,9 @@ class BasketScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final body = FutureBuilder<List<Book>>(
-      future: BookService().fetchBasketBooks(),
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    final body = StreamBuilder<List<Book>>(
+      stream: CloudBookService().streamBooks(ownerId: uid),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());

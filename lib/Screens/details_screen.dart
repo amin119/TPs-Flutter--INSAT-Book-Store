@@ -1,6 +1,8 @@
 import '../models/book.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../services/book_service.dart';
+import '../services/cloud_book_service.dart';
 
 final ValueNotifier<int> quantity = ValueNotifier<int>(10); // global stock counter
 
@@ -109,6 +111,13 @@ class DetailsContent extends StatelessWidget {
                 // insert into local DB basket
                 try {
                   await BookService().insertBook(book);
+                  // also add to cloud (associate with anonymous uid if available)
+                  try {
+                    final uid = FirebaseAuth.instance.currentUser?.uid;
+                    await CloudBookService().addBook(book, ownerId: uid);
+                  } catch (_) {
+                    // ignore cloud errors but continue
+                  }
                   // show a short success dialog that auto dismisses (rounded, themed)
                   showDialog(
                     context: context,

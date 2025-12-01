@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'Screens/signup_screen.dart';
 import 'theme_controller.dart';
 import 'Screens/home_screen.dart';
@@ -7,7 +10,15 @@ import 'Screens/tab_bar_screen.dart';
 import 'Screens/details_screen.dart';
 import 'models/book.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  // enable offline persistence for Firestore (mobile default; explicit for clarity)
+  FirebaseFirestore.instance.settings = const Settings(persistenceEnabled: true);
+  // sign in anonymously so we can associate docs to a user (optional)
+  try {
+    await FirebaseAuth.instance.signInAnonymously();
+  } catch (_) {}
   runApp(const MyApp());
 }
 
