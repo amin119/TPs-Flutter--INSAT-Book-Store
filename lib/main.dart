@@ -15,6 +15,13 @@ void main() async {
   await Firebase.initializeApp();
   // enable offline persistence for Firestore (mobile default; explicit for clarity)
   FirebaseFirestore.instance.settings = const Settings(persistenceEnabled: true);
+  // Optional: use local Firestore emulator when testing locally.
+  // Enable by running Flutter with: --dart-define=USE_FIRESTORE_EMULATOR=true
+  const bool _useFirestoreEmulator = bool.fromEnvironment('USE_FIRESTORE_EMULATOR', defaultValue: false);
+  if (_useFirestoreEmulator) {
+    // default emulator host/port used by `firebase emulators:start --only firestore`
+    FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
+  }
   // sign in anonymously so we can associate docs to a user (optional)
   try {
     await FirebaseAuth.instance.signInAnonymously();

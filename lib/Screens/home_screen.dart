@@ -4,6 +4,7 @@ import '../models/book.dart';
 import 'details_screen.dart';
 import '../theme_controller.dart';
 import '../widgets/custom_drawer.dart';
+import '../services/firestore_service.dart';
 
 class HomeScreen extends StatelessWidget {
   static const String routeName = "/Home";
@@ -12,15 +13,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<Book> books = [
-      Book("To All the Boys I've Loved Before", 30, "assets/book7.jpg"),
-      Book("Bridgerton - The Viscount Who Loved Me", 35, "assets/book6.jpg"),
-      Book("Fifty Shades Darker", 28, "assets/book5.jpg"),
-      Book("Sin Eater", 25, "assets/book3.jpg"),
-      Book("Harry Potter & the Deathly Hallows", 40, "assets/book2.jpg"),
-      Book("The White Raven", 33, "assets/book4.jpg"),
-      Book("City of Orange", 29, "assets/book1.jpg"),
-    ];
+    // We'll stream books from Firestore instead of using a static list
 
     return Scaffold(
       // keep the drawer available, but we'll render our own header in the body
@@ -93,12 +86,96 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
 
-          // content list
+          // content list (real-time from Firestore)
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: HomeList(books: books),
+              child: StreamBuilder<List<Book>>(
+                stream: FirestoreService.instance.booksStream(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  }
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  final books = snapshot.data ?? [];
+                  if (books.isEmpty) {
+                    return const Center(child: Text('No books in the database'));
+                  }
+                  return HomeList(books: books);
+                },
+              ),
             ),
+          ),
+          // Floating action: add new book
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0, bottom: 16.0),
+            child: Align(
+              alignment: Alignment.bottomRight,
+              child: FloatingActionButton(
+                onPressed: () => _showAddDialog(context),
+                child: const Icon(Icons.add),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAddDialog(BuildContext context) {
+    final _nameController = TextEditingController();
+    final _priceController = TextEditingController();
+    String selectedImage = 'assets/book1.jpg';
+
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Add Book'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: _nameController,
+              decoration: const InputDecoration(labelText: 'Name'),
+            ),
+            TextField(
+              controller: _priceController,
+              decoration: const InputDecoration(labelText: 'Price'),
+              keyboardType: TextInputType.number,
+            ),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<String>(
+              value: selectedImage,
+              items: [
+                'assets/book1.jpg',
+                'assets/book2.jpg',
+                'assets/book3.jpg',
+                'assets/book4.jpg',
+                'assets/book5.jpg',
+                'assets/book6.jpg',
+                'assets/book7.jpg',
+              ].map((i) => DropdownMenuItem(value: i, child: Text(i))).toList(),
+              onChanged: (v) {
+                if (v != null) selectedImage = v;
+              },
+              decoration: const InputDecoration(labelText: 'Image'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () async {
+              final name = _nameController.text.trim();
+              final price = int.tryParse(_priceController.text.trim()) ?? 0;
+              if (name.isEmpty) return;
+              final book = Book(name, price, selectedImage);
+              await FirestoreService.instance.addBook(book);
+              Navigator.pop(context);
+            },
+            child: const Text('Add'),
           ),
         ],
       ),
@@ -135,16 +212,53 @@ class HomeList extends StatelessWidget {
       separatorBuilder: (context, index) => const SizedBox(height: 16),
       itemBuilder: (context, index) {
         final book = books[index];
-        return GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => DetailsScreen(book: book),
+        return Dismissible(
+          key: ValueKey(book.id.isNotEmpty ? book.id : index),
+          direction: DismissDirection.endToStart,
+          background: Container(
+            color: Colors.red,
+            alignment: Alignment.centerRight,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: const Icon(Icons.delete, color: Colors.white),
+          ),
+          confirmDismiss: (_) async {
+            // confirm
+            final res = await showDialog<bool>(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: const Text('Confirm delete'),
+                content: Text('Delete "${book.name}"?'),
+                actions: [
+                  TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+                  ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
+                ],
               ),
             );
+            if (res != true) return false;
+            if (book.id.isEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cannot delete local item')));
+              return false;
+            }
+            try {
+              await FirestoreService.instance.deleteBook(book.id);
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Deleted')));
+              return true;
+            } catch (e) {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Delete failed: $e')));
+              return false;
+            }
           },
-          child: HomeCell(book: book),
+          child: GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => DetailsScreen(book: book),
+                ),
+              );
+            },
+            child: HomeCell(book: book),
+          ),
         );
       },
     );
